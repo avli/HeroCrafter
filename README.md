@@ -181,6 +181,8 @@ curl -u user:password -X POST -H "Content-Type: application/json" -d '{"name": "
 nt": "lawful neutral"}' http://127.0.0.1:8000/api/v1/generate-portrait/
 ```
 
+### httpie
+
 ```shell
 http --auth user:password --json POST http://127.0.0.1:8000/api/v1/generate-portrait/ name=Arno race=gnome gender=male character_class=sorcerer alignment='lawful neutral' 
 ```
