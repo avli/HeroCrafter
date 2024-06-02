@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+
+{% load bootstrap4 %}
+
+{% bootstrap_css %}
+{% bootstrap_javascript jquery='full' %}
+
+{% block title %}
+RPG Character Roll
+{% endblock %}
+
+{% block content %}
+
+<div class="container mt-5">
+    <button id="roll" class="btn btn-primary mt-4">Roll Dice</button>
+
+    <div id="portrait-container" class="mt-4"></div>
+
+    <div class="mt-4">
+        <form id="results" method="post">
+            {% csrf_token %}
+            {% bootstrap_form form %}
+            <button class="btn btn-primary mt-4" type="Submit">Save character</button>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function rollDice() {
+        let values = [];
+        for (let i = 0; i < 4; i++) {
+            values.push(Math.floor(Math.random() * 6) + 1);
+        }
+        values.sort().shift();
+        return values.reduce((a, b) => a + b, 0);
+    }
+
+    $("#roll").click(function () {
+        let $biography = $('#id_biography')
+        $biography.val('')
+        $('#portrait-container').html('')
+
+        let abilities = ["Strength", "Dexterity", "Constitution", "Intelligence", "Wisdom", "Charisma", "Hit_Points"];
+        for (let ability of abilities) {
+            $('#id_' + ability.toLowerCase()).val(rollDice())
+        }
+
+        $('#id_name').val(generateName())
+        $('#id_alignment').val('Lowful Neutral')
+        $('#gender').val("Female")
+
+        function generateName() {
+            var nameParts = ["Val", "Ae", "Rin", "El", "Tor", "Ia"];
+            var firstName = nameParts[Math.floor(Math.random() * nameParts.length)] +
+                nameParts[Math.floor(Math.random() * nameParts.length)];
+
+            var lastName = nameParts[Math.floor(Math.random() * nameParts.length)] +
+                nameParts[Math.floor(Math.random() * nameParts.length)];
+
+            firstName = firstName.charAt(0).toUpperCase() + firstName.slice(1).toLowerCase();
+            lastName = lastName.charAt(0).toUpperCase() + lastName.slice(1).toLowerCase();
+
+            return firstName + " " + lastName
+        }
+
+        function randomSelect(selector) {
+            var options = $('#id_' + selector + ' option');
+            randomIndex = Math.floor(Math.random() * options.length);
+            options.eq(randomIndex).prop('selected', true)
+        }
+
+        ['gender', 'alignment', 'character_class', 'race'].forEach(function (selector) {
+            randomSelect(selector)
+        })
+
+        var $this = $(this);
+        $this.prop("disabled", true)
+        $this.text("Creating a character...")
+
+        $('#results :submit').prop("disabled", true)
+
+        $.ajaxSetup({
+            beforeSend: function (xhr, settings) {
+                if (!this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+                }
+            }
+        });
+
+        function getCookie(name) {
+            let value = "; " + document.cookie;
+            let parts = value.split("; " + name + "=");
+            if (parts.length === 2) return parts.pop().split(";").shift();
+        }
+
+        const biographyRequest = $.ajax({
+            url: "{% url 'generate_biography' %}",
+            method: "POST",
+            data: {
+                "name": $('#id_name').val(),
+                "gender": $('#id_gender option:selected').text(),
+                "alignment": $('#id_alignment option:selected').text(),
+                "character_class": $('#id_character_class option:selected').text(),
+                "race": $('#id_race option:selected').text(),
+            },
+            success: function (data) {
+                $biography.val(data.response)
+            }
+        })
+
+        const portraitRequest = $.ajax({
+            url: "{% url 'generate_portrait' %}",
+            method: "POST",
+            data: {
+                "name": $('#id_name').val(),
+                "gender": $('#id_gender option:selected').text(),
+                "alignment": $('#id_alignment option:selected').text(),
+                "character_class": $('#id_character_class option:selected').text(),
+                "race": $('#id_race option:selected').text(),
+            },
+            success: function (data) {
+                const imageUrl = data.response
+                $('#id_portrait_url').val(imageUrl)
+                $('#portrait-container').html(
+                    '<img style="width: 300px; height: 300px" src="' + imageUrl + '"/>'
+                )
+            }
+        })
+
+        $.when(biographyRequest, portraitRequest).done(() => {
+            $this.prop("disabled", false)
+            $this.text("Reroll")
+            $('#results :submit').prop("disabled", false)
+        })
+    });
+</script>
+{% endblock %}

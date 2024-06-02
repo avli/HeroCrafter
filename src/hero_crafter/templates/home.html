@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}
+Character List
+{% endblock %}
+
+{% block content %}
+<br/>
+<br/>
+<a class="btn btn-primary" href="{% url 'create_character' %}" role="button">Create new character</a>
+<br/>
+<br/>
+<h2>Your Existing Characters</h2>
+<table class="table">
+    <thead>
+    <tr>
+        <th>Name</th>
+        <th>Race</th>
+        <th>Class</th>
+        <th>Alignment</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for character in characters %}
+    <tr>
+        <td><a href="character/{{ character.pk }}">{{ character.name }}</a></td>
+        <td>{{ character.get_race_display }}</td>
+        <td>{{ character.get_character_class_display }}</td>
+        <td>{{ character.get_alignment_display }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

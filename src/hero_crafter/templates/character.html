@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}
+{{ character.name }}
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2  class="my-3">Basic Info</h2>
+    <img style="width: 300px; height: 300px" src="{{ character.portrait_url }}"/>
+    <p><strong>Race:</strong> {{ character.get_race_display }}</p>
+    <p><strong>Class:</strong> {{ character.get_character_class_display }}</p>
+    <p><strong>Alignment:</strong> {{ character.get_alignment_display }}</p>
+
+    <h2 class="my-3">Attributes</h2>
+    <p><strong>Strength:</strong> {{ character.strength }}</p>
+    <p><strong>Dexterity:</strong> {{ character.dexterity }}</p>
+    <p><strong>Constitution:</strong> {{ character.constitution }}</p>
+    <p><strong>Intelligence:</strong> {{ character.intelligence }}</p>
+    <p><strong>Wisdom:</strong> {{ character.wisdom }}</p>
+    <p><strong>Charisma:</strong> {{ character.charisma }}</p>
+
+    <h2 class="my-3">Biography</h2>
+    <p>{{ character.biography }}</p>
+</div>
+{% endblock %}

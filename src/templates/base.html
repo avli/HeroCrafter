@@ -1,0 +1,18 @@
+{% load bootstrap4 %}
+
+{% bootstrap_css %}
+{% bootstrap_javascript jquery='full' %}
+
+{% block bootstrap4_content %}
+<div class="container">
+    {% include 'navbar.html' %}
+
+    <h2>{% block title %}(no title){% endblock %}</h2>
+
+    {% autoescape off %}{% bootstrap_messages %}{% endautoescape %}
+
+    {% block content %}(no content){% endblock %}
+
+    {% block scripts %}{% endblock %}
+</div>
+{% endblock %}
